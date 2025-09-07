@@ -6,7 +6,7 @@ esphome:
 external_components:
   - source: 
       type: git
-      url: https://github.com/pedobry/esphome_toshiba_suzumi
+      url: https://github.com/LeParadoxHD/esphome_toshiba_leparadoxhd
     components: [toshiba_leparadoxhd]
 
 logger:

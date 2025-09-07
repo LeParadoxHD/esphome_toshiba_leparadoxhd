@@ -6,7 +6,7 @@ Toshiba air conditioner has an option for connecting remote module purchased sep
 
 This component use ESPHome UART to connect with Toshiba AC and communicates directly with Home Assistant.
 
-<a href="https://www.buymeacoffee.com/pedobryk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/LeParadoxHDk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ### Supported Toshiba units
 
@@ -65,15 +65,15 @@ AC unit has a wifi connector CN22 with an extension cable, usually with pink and
 
    ![ESPHome entity](/images/HA_ESPHome.png)
 
-3. edit code configuration and setup UART and Climate modules. See [example.yaml](https://github.com/pedobry/esphome_toshiba_suzumi/blob/main/example.yaml) for configuration details.
+3. edit code configuration and setup UART and Climate modules. See [example.yaml](https://github.com/LeParadoxHD/esphome_toshiba_leparadoxhd/blob/main/example.yaml) for configuration details.
 
 ```yaml
 ...
 external_components:
   - source: 
       type: git
-      url: https://github.com/pedobry/esphome_toshiba_suzumi
-    components: [toshiba_suzumi]
+      url: https://github.com/LeParadoxHD/esphome_toshiba_leparadoxhd
+    components: [toshiba_leparadoxhd]
 
 uart:
   id: uart_bus
@@ -83,33 +83,31 @@ uart:
   baud_rate: 9600
 
 climate:
-  - platform: toshiba_suzumi
+  - platform: toshiba_leparadoxhd
     name: living-room
     id: living_room
     uart_id: uart_bus
-    outdoor_temp:        # Optional. Outdoor temperature sensor
+    outdoor_temp:                # Optional. Outdoor temperature sensor
       name: Outdoor Temp
       filters:
         # Filter out value 127 as that's what unit sends when it can's measure the outside temp.
         - filter_out: 127 
     power_select:
       name: "Power level"
-    #horizontal_swing: true # Optional. Uncomment if your HVAC supports also horizontal swing
-    #special_mode:          # Optional. Enable only the features your HVAC supports.
-      #name: "Special mode"
-      #modes:
-        #- "Standard"
-        #- "Hi POWER"
-        #- "ECO"
-        #- "Fireplace 1"
-        #- "Fireplace 2"
-        #- "8 degrees"  # When enabling this mode, the temp range is set to 5-30°C
-        #- "Silent#1"
-        #- "Silent#2"
-        #- "Sleep"
-        #- "Floor"
-        #- "Comfort"
-    #disable_wifi_led: true # Optional. Disable Wifi LED on internal unit.
+    #horizontal_swing: true      # Optional. Uncomment if your HVAC supports also horizontal swing
+    #supported_presets:          # Optional. Enable only the features your HVAC
+      #- "Standard"
+      #- "Hi POWER"
+      #- "ECO"
+      #- "Fireplace 1"
+      #- "Fireplace 2"
+      #- "8 degrees"             # When enabling this mode, the temp range is set to 5-30°C
+      #- "Silent#1"
+      #- "Silent#2"
+      #- "Sleep"
+      #- "Floor"
+      #- "Comfort"
+    #disable_wifi_led: true      # Optional. Disable Wifi LED on internal unit.
 ...
 ```
 
@@ -154,7 +152,7 @@ button:
     on_press:
       then:
         - lambda: |-
-            auto* controller = static_cast<toshiba_suzumi::ToshibaClimateUart*>(id(living_room));
+            auto* controller = static_cast<toshiba_leparadoxhd::ToshibaClimateUart*>(id(living_room));
             controller->scan();
 ```
 
@@ -170,12 +168,12 @@ It was fixed in current code, but users with ESPHome older than 2023.3.0 needs t
 
 * users with **ESPHome 2023.3.0** or newer should use branch master
 
-    `url: https://github.com/pedobry/esphome_toshiba_suzumi`
+    `url: https://github.com/LeParadoxHD/esphome_toshiba_leparadoxhd`
 
 * users with **ESPHome 2023.2.x and older** should use branch 2023.2.0:
 
     ```
-    url: https://github.com/pedobry/esphome_toshiba_suzumi
+    url: https://github.com/LeParadoxHD/esphome_toshiba_leparadoxhd
     ref: 2023.2.0
     ```
 
