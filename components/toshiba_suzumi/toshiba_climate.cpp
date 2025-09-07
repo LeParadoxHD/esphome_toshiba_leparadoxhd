@@ -4,7 +4,7 @@
 #include <algorithm>
 
 namespace esphome {
-namespace toshiba_suzumi {
+namespace toshiba_leparadoxhd {
 
 using namespace esphome::climate;
 
@@ -530,5 +530,5 @@ void ToshibaClimateUart::scan() {
   }
 }
 
-}  // namespace toshiba_suzumi
+}  // namespace toshiba_leparadoxhd
 }  // namespace esphome

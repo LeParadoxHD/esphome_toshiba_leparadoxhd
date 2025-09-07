@@ -25,12 +25,12 @@ FEATURE_HORIZONTAL_SWING = "horizontal_swing"
 MIN_TEMP = "min_temp"
 DISABLE_WIFI_LED = "disable_wifi_led"
 
-toshiba_ns = cg.esphome_ns.namespace("toshiba_suzumi")
+toshiba_ns = cg.esphome_ns.namespace("toshiba_leparadoxhd")
 ToshibaClimateUart = toshiba_ns.class_("ToshibaClimateUart", cg.PollingComponent, climate.Climate, uart.UARTDevice)
 ToshibaPwrModeSelect = toshiba_ns.class_('ToshibaPwrModeSelect', select.Select)
 
 if version.parse(ESPHOME_VERSION) >= version.parse("2025.5.0"):
-    _LOGGER.info("[TOSHIBA SUZUMI] Using new climate schema (ESPHome >= 2025.5.0)")
+    _LOGGER.info("[TOSHIBA LEPARADOXHD] Using new climate schema (ESPHome >= 2025.5.0)")
     CONFIG_SCHEMA = climate.climate_schema(ToshibaClimateUart).extend(
         {
             cv.GenerateID(): cv.declare_id(ToshibaClimateUart),
@@ -50,7 +50,7 @@ if version.parse(ESPHOME_VERSION) >= version.parse("2025.5.0"):
         }
     ).extend(uart.UART_DEVICE_SCHEMA).extend(cv.polling_component_schema("120s"))    
 else:
-    _LOGGER.info("[TOSHIBA SUZUMI] Using legacy climate schema (ESPHome < 2025.5.0)")
+    _LOGGER.info("[TOSHIBA LEPARADOXHD] Using legacy climate schema (ESPHome < 2025.5.0)")
     CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend(
         {
             cv.GenerateID(): cv.declare_id(ToshibaClimateUart),

@@ -5,7 +5,7 @@
 #include "esphome/components/climate/climate.h"
 
 namespace esphome {
-namespace toshiba_suzumi {
+namespace toshiba_leparadoxhd {
 
 constexpr const char* CUSTOM_FAN_LEVEL_2 = "Low-Medium";
 constexpr const char* CUSTOM_FAN_LEVEL_4 = "Medium-High";
@@ -93,5 +93,5 @@ const std::string IntToSpecialMode(SPECIAL_MODE mode);
 const optional<SPECIAL_MODE> PresetToSpecialMode(const std::string &preset);
 const std::string SpecialModeToPreset(SPECIAL_MODE mode);
 
-}  // namespace toshiba_suzumi
+}  // namespace toshiba_leparadoxhd
 }  // namespace esphome

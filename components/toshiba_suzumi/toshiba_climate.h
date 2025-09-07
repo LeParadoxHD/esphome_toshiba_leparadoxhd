@@ -8,7 +8,7 @@
 #include "toshiba_climate_mode.h"
 
 namespace esphome {
-namespace toshiba_suzumi {
+namespace toshiba_leparadoxhd {
 
 static const char *const TAG = "ToshibaClimateUart";
 // default max temp for units
@@ -94,5 +94,5 @@ class ToshibaPwrModeSelect : public select::Select, public esphome::Parented<Tos
   virtual void control(const std::string &value) override;
 };
 
-}  // namespace toshiba_suzumi
+}  // namespace toshiba_leparadoxhd
 }  // namespace esphome

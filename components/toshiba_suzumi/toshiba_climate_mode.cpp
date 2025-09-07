@@ -4,7 +4,7 @@
 #include "toshiba_climate.h"
 
 namespace esphome {
-namespace toshiba_suzumi {
+namespace toshiba_leparadoxhd {
 
 const MODE ClimateModeToInt(climate::ClimateMode mode) {
   switch (mode) {
@@ -245,5 +245,5 @@ const LogString *climate_state_to_string(STATE mode) {
   }
 }
 
-}  // namespace toshiba_suzumi
+}  // namespace toshiba_leparadoxhd
 }  // namespace esphome
