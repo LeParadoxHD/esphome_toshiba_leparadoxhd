@@ -303,11 +303,18 @@ void ToshibaClimateUart::parseResponse(std::vector<uint8_t> rawData) {
     }
     case ToshibaCommandType::SPECIAL_MODE: {
       this->special_mode_ = static_cast<SPECIAL_MODE>(value);
-      auto preset = SpecialModeToPreset(this->special_mode_.value());
-      ESP_LOGI(TAG, "Received special mode: %s", preset.c_str());
+      auto preset_string = SpecialModeToPreset(this->special_mode_.value());
+      ESP_LOGI(TAG, "Received special mode: %s", preset_string.c_str());
       // Only update preset if it's supported
-      if (std::find(supported_presets_.begin(), supported_presets_.end(), preset) != supported_presets_.end()) {
-        this->preset = preset;
+      if (std::find(supported_presets_.begin(), supported_presets_.end(), preset_string) != supported_presets_.end()) {
+        auto climate_preset = SpecialModeToClimatePreset(this->special_mode_.value());
+        if (climate_preset.has_value()) {
+          // Use standard preset
+          this->preset = climate_preset.value();
+        } else {
+          // Use custom preset
+          this->custom_preset = preset_string;
+        }
       }
       this->publish_state();
       break;
@@ -447,9 +454,10 @@ void ToshibaClimateUart::control(const climate::ClimateCall &call) {
 
   if (call.get_preset().has_value()) {
     auto preset = *call.get_preset();
-    auto special_mode = PresetToSpecialMode(preset);
+    auto preset_string = ClimatePresetToString(preset);
+    auto special_mode = PresetToSpecialMode(preset_string);
     if (special_mode.has_value()) {
-      ESP_LOGD(TAG, "Setting preset to %s", preset.c_str());
+      ESP_LOGD(TAG, "Setting preset to %s", preset_string.c_str());
       this->sendCmd(ToshibaCommandType::SPECIAL_MODE, static_cast<uint8_t>(special_mode.value()));
       this->preset = preset;
       
@@ -468,7 +476,34 @@ void ToshibaClimateUart::control(const climate::ClimateCall &call) {
         this->special_mode_ = special_mode.value();
       }
     } else {
-      ESP_LOGW(TAG, "Unknown preset: %s", preset.c_str());
+      ESP_LOGW(TAG, "Unknown preset: %s", preset_string.c_str());
+    }
+  }
+
+  if (call.get_custom_preset().has_value()) {
+    auto custom_preset = *call.get_custom_preset();
+    auto special_mode = PresetToSpecialMode(custom_preset);
+    if (special_mode.has_value()) {
+      ESP_LOGD(TAG, "Setting custom preset to %s", custom_preset.c_str());
+      this->sendCmd(ToshibaCommandType::SPECIAL_MODE, static_cast<uint8_t>(special_mode.value()));
+      this->custom_preset = custom_preset;
+      
+      // Handle special temperature logic for "8 degrees" mode
+      if (special_mode.value() != this->special_mode_) {
+        if (this->special_mode_ == SPECIAL_MODE::EIGHT_DEG && this->target_temperature < this->min_temp_) {
+          // when switching from FrostGuard to Standard mode, set target temperature to default for Standard mode
+          this->target_temperature = NORMAL_MODE_DEF_TEMP;
+        }
+        this->special_mode_ = special_mode.value();
+        if (special_mode.value() == SPECIAL_MODE::EIGHT_DEG && this->target_temperature >= this->min_temp_) {
+          // when switching from Standard to FrostGuard mode, set target temperature to default for FrostGuard mode
+          this->target_temperature = SPECIAL_MODE_EIGHT_DEG_DEF_TEMP;
+        }
+      } else {
+        this->special_mode_ = special_mode.value();
+      }
+    } else {
+      ESP_LOGW(TAG, "Unknown custom preset: %s", custom_preset.c_str());
     }
   }
 
@@ -503,8 +538,15 @@ ClimateTraits ToshibaClimateUart::traits() {
   // Add supported presets based on configuration
   if (!supported_presets_.empty()) {
     traits.set_supports_presets(true);
-    for (const auto &preset : supported_presets_) {
-      traits.add_supported_preset(preset);
+    for (const auto &preset_string : supported_presets_) {
+      auto climate_preset = StringToClimatePreset(preset_string);
+      if (climate_preset != climate::CLIMATE_PRESET_NONE || preset_string == SPECIAL_MODE_STANDARD) {
+        // Use standard presets for mapped modes
+        traits.add_supported_preset(climate_preset);
+      } else {
+        // Use custom presets for modes that don't map to standard ones
+        traits.add_supported_custom_preset(preset_string);
+      }
     }
   }
 

@@ -93,5 +93,10 @@ const std::string IntToSpecialMode(SPECIAL_MODE mode);
 const optional<SPECIAL_MODE> PresetToSpecialMode(const std::string &preset);
 const std::string SpecialModeToPreset(SPECIAL_MODE mode);
 
+const climate::ClimatePreset StringToClimatePreset(const std::string &preset);
+const std::string ClimatePresetToString(climate::ClimatePreset preset);
+const optional<SPECIAL_MODE> ClimatePresetToSpecialMode(climate::ClimatePreset preset);
+const optional<climate::ClimatePreset> SpecialModeToClimatePreset(SPECIAL_MODE mode);
+
 }  // namespace toshiba_leparadoxhd
 }  // namespace esphome

@@ -234,6 +234,63 @@ const std::string SpecialModeToPreset(SPECIAL_MODE mode) {
   }
 }
 
+const climate::ClimatePreset StringToClimatePreset(const std::string &preset) {
+  if (str_equals_case_insensitive(preset, SPECIAL_MODE_STANDARD)) {
+    return climate::CLIMATE_PRESET_NONE;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_ECO)) {
+    return climate::CLIMATE_PRESET_ECO;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_HI_POWER)) {
+    return climate::CLIMATE_PRESET_BOOST;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_SLEEP)) {
+    return climate::CLIMATE_PRESET_SLEEP;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_COMFORT)) {
+    return climate::CLIMATE_PRESET_COMFORT;
+  } else {
+    // For other modes, we'll need to use custom presets
+    return climate::CLIMATE_PRESET_NONE;
+  }
+}
+
+const std::string ClimatePresetToString(climate::ClimatePreset preset) {
+  switch (preset) {
+    case climate::CLIMATE_PRESET_NONE:
+      return SPECIAL_MODE_STANDARD;
+    case climate::CLIMATE_PRESET_ECO:
+      return SPECIAL_MODE_ECO;
+    case climate::CLIMATE_PRESET_BOOST:
+      return SPECIAL_MODE_HI_POWER;
+    case climate::CLIMATE_PRESET_SLEEP:
+      return SPECIAL_MODE_SLEEP;
+    case climate::CLIMATE_PRESET_COMFORT:
+      return SPECIAL_MODE_COMFORT;
+    default:
+      return SPECIAL_MODE_STANDARD;
+  }
+}
+
+const optional<SPECIAL_MODE> ClimatePresetToSpecialMode(climate::ClimatePreset preset) {
+  auto preset_string = ClimatePresetToString(preset);
+  return PresetToSpecialMode(preset_string);
+}
+
+const optional<climate::ClimatePreset> SpecialModeToClimatePreset(SPECIAL_MODE mode) {
+  switch (mode) {
+    case SPECIAL_MODE::STANDARD:
+      return climate::CLIMATE_PRESET_NONE;
+    case SPECIAL_MODE::ECO:
+      return climate::CLIMATE_PRESET_ECO;
+    case SPECIAL_MODE::HI_POWER:
+      return climate::CLIMATE_PRESET_BOOST;
+    case SPECIAL_MODE::SLEEP:
+      return climate::CLIMATE_PRESET_SLEEP;
+    case SPECIAL_MODE::COMFORT:
+      return climate::CLIMATE_PRESET_COMFORT;
+    default:
+      // For modes that don't have standard equivalents, return none
+      return nullopt;
+  }
+}
+
 const LogString *climate_state_to_string(STATE mode) {
   switch (mode) {
     case STATE::ON:
