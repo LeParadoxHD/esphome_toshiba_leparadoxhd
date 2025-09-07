@@ -391,9 +391,9 @@ void ToshibaClimateUart::control(const climate::ClimateCall &call) {
       ESP_LOGD(TAG, "Changing to FrostGuard Mode");
     }
     if (special_mode_changed) {
-      // send command to change special mode and update HA frontend
+      // send command to change special mode
       this->sendCmd(ToshibaCommandType::SPECIAL_MODE, static_cast<uint8_t>(this->special_mode_.value()));
-      special_mode_select_->publish_state(IntToSpecialMode(this->special_mode_.value()));
+      // Note: preset state will be updated automatically by publish_state() call at the end
     }
 
     ESP_LOGD(TAG, "Setting target temp to %d", newTargetTemp);
