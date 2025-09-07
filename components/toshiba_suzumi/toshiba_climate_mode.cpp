@@ -177,6 +177,63 @@ const climate::ClimateSwingMode IntToClimateSwingMode(SWING mode) {
   }
 }
 
+const optional<SPECIAL_MODE> PresetToSpecialMode(const std::string &preset) {
+  if (str_equals_case_insensitive(preset, SPECIAL_MODE_STANDARD)) {
+    return SPECIAL_MODE::STANDARD;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_HI_POWER)) {
+    return SPECIAL_MODE::HI_POWER;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_ECO)) {
+    return SPECIAL_MODE::ECO;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_FIREPLACE_1)) {
+    return SPECIAL_MODE::FIREPLACE_1;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_FIREPLACE_2)) {
+    return SPECIAL_MODE::FIREPLACE_2;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_EIGHT_DEG)) {
+    return SPECIAL_MODE::EIGHT_DEG;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_SILENT_1)) {
+    return SPECIAL_MODE::SILENT_1;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_SILENT_2)) {
+    return SPECIAL_MODE::SILENT_2;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_SLEEP)) {
+    return SPECIAL_MODE::SLEEP;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_FLOOR)) {
+    return SPECIAL_MODE::FLOOR;
+  } else if (str_equals_case_insensitive(preset, SPECIAL_MODE_COMFORT)) {
+    return SPECIAL_MODE::COMFORT;
+  } else {
+    return nullopt;
+  }
+}
+
+const std::string SpecialModeToPreset(SPECIAL_MODE mode) {
+  switch (mode) {
+    case SPECIAL_MODE::STANDARD:
+      return SPECIAL_MODE_STANDARD;
+    case SPECIAL_MODE::HI_POWER:
+      return SPECIAL_MODE_HI_POWER;
+    case SPECIAL_MODE::ECO:
+      return SPECIAL_MODE_ECO;
+    case SPECIAL_MODE::FIREPLACE_1:
+      return SPECIAL_MODE_FIREPLACE_1;
+    case SPECIAL_MODE::FIREPLACE_2:
+      return SPECIAL_MODE_FIREPLACE_2;
+    case SPECIAL_MODE::EIGHT_DEG:
+      return SPECIAL_MODE_EIGHT_DEG;
+    case SPECIAL_MODE::SILENT_1:
+      return SPECIAL_MODE_SILENT_1;
+    case SPECIAL_MODE::SILENT_2:
+      return SPECIAL_MODE_SILENT_2;
+    case SPECIAL_MODE::SLEEP:
+      return SPECIAL_MODE_SLEEP;
+    case SPECIAL_MODE::FLOOR:
+      return SPECIAL_MODE_FLOOR;
+    case SPECIAL_MODE::COMFORT:
+      return SPECIAL_MODE_COMFORT;
+    default:
+      return SPECIAL_MODE_STANDARD;
+  }
+}
+
 const LogString *climate_state_to_string(STATE mode) {
   switch (mode) {
     case STATE::ON:

@@ -90,5 +90,8 @@ const std::string IntToPowerLevel(PWR_LEVEL mode);
 const optional<SPECIAL_MODE> SpecialModeToInt(const std::string &mode);
 const std::string IntToSpecialMode(SPECIAL_MODE mode);
 
+const optional<SPECIAL_MODE> PresetToSpecialMode(const std::string &preset);
+const std::string SpecialModeToPreset(SPECIAL_MODE mode);
+
 }  // namespace toshiba_suzumi
 }  // namespace esphome

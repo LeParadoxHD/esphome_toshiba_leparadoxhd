@@ -1,4 +1,12 @@
 ***
+[NEW] TBD 2025
+
+* BREAKING CHANGE: converted special modes from separate select entities to native Climate presets 
+* special modes (Standard, ECO, Hi POWER, etc.) now appear as presets in the Climate card instead of separate select entities
+* improved Home Assistant integration - all AC controls now unified in a single Climate card
+* updated configuration: replaced 'special_mode' configuration with 'supported_presets'
+* backward compatibility: existing special_mode configurations will need to be updated to supported_presets
+
 May 18th 2025
 
 * added support for FrostGuard (8 degree) mode

@@ -1,6 +1,7 @@
 #include "toshiba_climate.h"
 #include "toshiba_climate_mode.h"
 #include "esphome/core/log.h"
+#include <algorithm>
 
 namespace esphome {
 namespace toshiba_suzumi {
@@ -302,10 +303,11 @@ void ToshibaClimateUart::parseResponse(std::vector<uint8_t> rawData) {
     }
     case ToshibaCommandType::SPECIAL_MODE: {
       this->special_mode_ = static_cast<SPECIAL_MODE>(value);
-      auto special_mode = IntToSpecialMode(this->special_mode_.value());
-      ESP_LOGI(TAG, "Received special mode: %d", value);
-      if (special_mode_select_ != nullptr) {
-        special_mode_select_->publish_state(special_mode);
+      auto preset = SpecialModeToPreset(this->special_mode_.value());
+      ESP_LOGI(TAG, "Received special mode: %s", preset.c_str());
+      // Only update preset if it's supported
+      if (std::find(supported_presets_.begin(), supported_presets_.end(), preset) != supported_presets_.end()) {
+        this->preset = preset;
       }
       this->publish_state();
       break;
@@ -327,8 +329,11 @@ void ToshibaClimateUart::dump_config() {
   if (pwr_select_ != nullptr) {
     LOG_SELECT("", "Power selector", this->pwr_select_);
   }
-  if (special_mode_select_ != nullptr) {
-    LOG_SELECT("", "Special mode selector", this->special_mode_select_);
+  if (!supported_presets_.empty()) {
+    ESP_LOGCONFIG(TAG, "Supported presets:");
+    for (const auto &preset : supported_presets_) {
+      ESP_LOGCONFIG(TAG, "  - %s", preset.c_str());
+    }
   }
   ESP_LOGI(TAG, "Min Temp: %d", this->min_temp_);
 }
@@ -440,6 +445,33 @@ void ToshibaClimateUart::control(const climate::ClimateCall &call) {
     this->sendCmd(ToshibaCommandType::SWING, static_cast<uint8_t>(function_value));
   }
 
+  if (call.get_preset().has_value()) {
+    auto preset = *call.get_preset();
+    auto special_mode = PresetToSpecialMode(preset);
+    if (special_mode.has_value()) {
+      ESP_LOGD(TAG, "Setting preset to %s", preset.c_str());
+      this->sendCmd(ToshibaCommandType::SPECIAL_MODE, static_cast<uint8_t>(special_mode.value()));
+      this->preset = preset;
+      
+      // Handle special temperature logic for "8 degrees" mode
+      if (special_mode.value() != this->special_mode_) {
+        if (this->special_mode_ == SPECIAL_MODE::EIGHT_DEG && this->target_temperature < this->min_temp_) {
+          // when switching from FrostGuard to Standard mode, set target temperature to default for Standard mode
+          this->target_temperature = NORMAL_MODE_DEF_TEMP;
+        }
+        this->special_mode_ = special_mode.value();
+        if (special_mode.value() == SPECIAL_MODE::EIGHT_DEG && this->target_temperature >= this->min_temp_) {
+          // when switching from Standard to FrostGuard mode, set target temperature to default for FrostGuard mode
+          this->target_temperature = SPECIAL_MODE_EIGHT_DEG_DEF_TEMP;
+        }
+      } else {
+        this->special_mode_ = special_mode.value();
+      }
+    } else {
+      ESP_LOGW(TAG, "Unknown preset: %s", preset.c_str());
+    }
+  }
+
   this->publish_state();
 }
 
@@ -468,6 +500,14 @@ ClimateTraits ToshibaClimateUart::traits() {
   traits.set_visual_min_temperature(this->min_temp_);
   traits.set_visual_max_temperature(MAX_TEMP);
 
+  // Add supported presets based on configuration
+  if (!supported_presets_.empty()) {
+    traits.set_supports_presets(true);
+    for (const auto &preset : supported_presets_) {
+      traits.add_supported_preset(preset);
+    }
+  }
+
   return traits;
 }
 
@@ -478,28 +518,7 @@ void ToshibaClimateUart::on_set_pwr_level(const std::string &value) {
   pwr_select_->publish_state(value);
 }
 
-void ToshibaClimateUart::on_set_special_mode(const std::string &value) {
-  auto new_special_mode = SpecialModeToInt(value);
-  ESP_LOGD(TAG, "Setting special mode to %s", value.c_str());
-  this->sendCmd(ToshibaCommandType::SPECIAL_MODE, static_cast<uint8_t>(new_special_mode.value()));
-  special_mode_select_->publish_state(value);
-  if (new_special_mode != this->special_mode_) {
-    if (this->special_mode_ == SPECIAL_MODE::EIGHT_DEG && this->target_temperature < this->min_temp_) {
-      // when switching from FrostGuard to Standard mode, set target temperature to default for Standard mode
-      this->target_temperature = NORMAL_MODE_DEF_TEMP;
-    }
-    this->special_mode_ = new_special_mode;
-    if (new_special_mode == SPECIAL_MODE::EIGHT_DEG && this->target_temperature >= this->min_temp_) {
-      // when switching from Standard to FrostGuard mode, set target temperature to default for FrostGuard mode
-      this->target_temperature = SPECIAL_MODE_EIGHT_DEG_DEF_TEMP;
-    }
-    // update Climate component in HA with new target temperature
-    this->publish_state();
-  }
-}
-
 void ToshibaPwrModeSelect::control(const std::string &value) { parent_->on_set_pwr_level(value); }
-void ToshibaSpecialModeSelect::control(const std::string &value) { parent_->on_set_special_mode(value); }
 
 /**
  * Scan all statuses from 128 to 255 in order to find unknown features.
