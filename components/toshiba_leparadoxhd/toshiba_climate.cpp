@@ -537,7 +537,7 @@ ClimateTraits ToshibaClimateUart::traits() {
 
   // Add supported presets based on configuration
   if (!supported_presets_.empty()) {
-    traits.set_supports_presets(true);
+    // Presets are automatically enabled when adding supported presets
     for (const auto &preset_string : supported_presets_) {
       auto climate_preset = StringToClimatePreset(preset_string);
       if (climate_preset != climate::CLIMATE_PRESET_NONE || preset_string == SPECIAL_MODE_STANDARD) {
